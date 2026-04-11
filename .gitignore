@@ -1,3 +1,17 @@
+# Next.js build output
+.next/
+out/
+
+# SQLite local DB files
+*.db
+*.db-shm
+*.db-wal
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
 # Environment files
 .env
 .env.local
