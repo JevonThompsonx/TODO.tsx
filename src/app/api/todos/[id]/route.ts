@@ -1,7 +1,7 @@
 // src/app/api/todos/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getTodoById, updateTodo, deleteTodo } from "@/lib/todos";
-import type { UpdateTodoInput } from "@/types/todo";
+import { validateUpdateTodo } from "@/lib/validate";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -22,8 +22,14 @@ export async function GET(_req: NextRequest, { params }: Params) {
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const body = (await req.json()) as UpdateTodoInput;
-    const todo = await updateTodo(id, body);
+    const body = await req.json().catch(() => null);
+    const { data, errors } = validateUpdateTodo(body);
+
+    if (errors.length > 0) {
+      return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    const todo = await updateTodo(id, data!);
     if (!todo) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
