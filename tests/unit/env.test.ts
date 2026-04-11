@@ -3,7 +3,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
-// Helper to temporarily override process.env
 function withEnv(overrides: Record<string, string | undefined>, fn: () => void) {
   const original: Record<string, string | undefined> = {};
   for (const key of Object.keys(overrides)) {
@@ -45,10 +44,11 @@ describe("validateEnv", () => {
       withEnv(
         {
           NODE_ENV: "development",
-          DATABASE_URL: undefined,
-          DATABASE_AUTH_TOKEN: undefined,
+          TURSO_DATABASE_URL: undefined,
+          TURSO_AUTH_TOKEN: undefined,
           NEXT_PUBLIC_SUPABASE_URL: undefined,
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: undefined,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined,
         },
         () => {
           const result = validateEnv();
@@ -59,10 +59,10 @@ describe("validateEnv", () => {
       );
     });
 
-    it("emits warning when DATABASE_URL is missing", () => {
-      withEnv({ NODE_ENV: "development", DATABASE_URL: undefined }, () => {
+    it("emits warning when TURSO_DATABASE_URL is missing", () => {
+      withEnv({ NODE_ENV: "development", TURSO_DATABASE_URL: undefined }, () => {
         const result = validateEnv();
-        expect(result.warnings.some((w) => w.includes("DATABASE_URL"))).toBe(true);
+        expect(result.warnings.some((w) => w.includes("TURSO_DATABASE_URL"))).toBe(true);
       });
     });
 
@@ -71,7 +71,8 @@ describe("validateEnv", () => {
         {
           NODE_ENV: "development",
           NEXT_PUBLIC_SUPABASE_URL: undefined,
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: undefined,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined,
         },
         () => {
           const result = validateEnv();
@@ -82,19 +83,20 @@ describe("validateEnv", () => {
   });
 
   describe("production mode (NODE_ENV=production)", () => {
-    it("errors when DATABASE_URL is missing in production", () => {
+    it("errors when TURSO_DATABASE_URL is missing in production", () => {
       withEnv(
         {
           NODE_ENV: "production",
-          DATABASE_URL: undefined,
-          DATABASE_AUTH_TOKEN: undefined,
+          TURSO_DATABASE_URL: undefined,
+          TURSO_AUTH_TOKEN: undefined,
           NEXT_PUBLIC_SUPABASE_URL: undefined,
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: undefined,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined,
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
-          expect(result.errors.some((e) => e.includes("DATABASE_URL"))).toBe(true);
+          expect(result.errors.some((e) => e.includes("TURSO_DATABASE_URL"))).toBe(true);
         }
       );
     });
@@ -103,25 +105,26 @@ describe("validateEnv", () => {
       withEnv(
         {
           NODE_ENV: "production",
-          DATABASE_URL: "libsql://my-db.turso.io",
-          DATABASE_AUTH_TOKEN: undefined,
+          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
+          TURSO_AUTH_TOKEN: undefined,
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
-          expect(result.errors.some((e) => e.includes("DATABASE_AUTH_TOKEN"))).toBe(true);
+          expect(result.errors.some((e) => e.includes("TURSO_AUTH_TOKEN"))).toBe(true);
         }
       );
     });
 
-    it("is valid when both DATABASE_URL and DATABASE_AUTH_TOKEN are set", () => {
+    it("is valid when both TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are set", () => {
       withEnv(
         {
           NODE_ENV: "production",
-          DATABASE_URL: "libsql://my-db.turso.io",
-          DATABASE_AUTH_TOKEN: "token123",
+          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
+          TURSO_AUTH_TOKEN: "token123",
           NEXT_PUBLIC_SUPABASE_URL: undefined,
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: undefined,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined,
         },
         () => {
           const result = validateEnv();
@@ -134,34 +137,53 @@ describe("validateEnv", () => {
       withEnv(
         {
           NODE_ENV: "production",
-          DATABASE_URL: "file:./dev.db",
-          DATABASE_AUTH_TOKEN: undefined,
+          TURSO_DATABASE_URL: "file:./dev.db",
+          TURSO_AUTH_TOKEN: undefined,
         },
         () => {
           const result = validateEnv();
-          // valid (no error for file: in prod) but warns
           expect(result.warnings.some((w) => w.includes("file path"))).toBe(true);
         }
       );
     });
 
-    it("errors when only one Supabase key is provided", () => {
+    it("errors when only Supabase URL is provided without key", () => {
       withEnv(
         {
           NODE_ENV: "production",
-          DATABASE_URL: "libsql://my-db.turso.io",
-          DATABASE_AUTH_TOKEN: "tok",
+          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
+          TURSO_AUTH_TOKEN: "tok",
           NEXT_PUBLIC_SUPABASE_URL: "https://xxx.supabase.co",
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: undefined,
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined,
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
           expect(
             result.errors.some(
-              (e) => e.includes("NEXT_PUBLIC_SUPABASE_URL") || e.includes("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+              (e) =>
+                e.includes("NEXT_PUBLIC_SUPABASE_URL") ||
+                e.includes("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
             )
           ).toBe(true);
+        }
+      );
+    });
+
+    it("accepts SUPABASE_ANON_KEY as fallback for publishable key", () => {
+      withEnv(
+        {
+          NODE_ENV: "production",
+          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
+          TURSO_AUTH_TOKEN: "tok",
+          NEXT_PUBLIC_SUPABASE_URL: "https://xxx.supabase.co",
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
+          SUPABASE_ANON_KEY: "anon-key-123",
+        },
+        () => {
+          const result = validateEnv();
+          expect(result.valid).toBe(true);
         }
       );
     });
