@@ -3,12 +3,12 @@
 // Falls back to a guest session when Supabase vars are not configured
 // (local dev / CI without credentials).
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
   email: string;
-  role: "user" | "admin";
+  role: 'user' | 'admin';
 }
 
 export interface Session {
@@ -17,23 +17,19 @@ export interface Session {
 }
 
 const GUEST_USER: User = {
-  id: "guest-00000000-0000-0000-0000-000000000000",
-  email: "guest@local.dev",
-  role: "user",
+  id: 'guest-00000000-0000-0000-0000-000000000000',
+  email: 'guest@local.dev',
+  role: 'user'
 };
 
 const GUEST_SESSION: Session = {
   user: GUEST_USER,
-  access_token: "local-dev-token",
+  access_token: 'local-dev-token'
 };
 
 /** Resolve the Supabase anon key — Vercel uses different naming conventions. */
 function getAnonKey(): string | undefined {
-  return (
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.SUPABASE_ANON_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 }
 
 /** Create a Supabase client for server-side use. Returns null when not configured. */
@@ -45,8 +41,8 @@ export function createSupabaseServerClient() {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
-      detectSessionInUrl: false,
-    },
+      detectSessionInUrl: false
+    }
   });
 }
 
@@ -58,8 +54,8 @@ export function createSupabaseAdminClient() {
   return createClient(url, key, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false,
-    },
+      persistSession: false
+    }
   });
 }
 
@@ -82,17 +78,17 @@ export async function getSession(accessToken?: string): Promise<Session | null> 
       return {
         user: {
           id: data.user.id,
-          email: data.user.email ?? "",
-          role: (data.user.role === "service_role" ? "admin" : "user") as User["role"],
+          email: data.user.email ?? '',
+          role: (data.user.role === 'service_role' ? 'admin' : 'user') as User['role']
         },
-        access_token: accessToken,
+        access_token: accessToken
       };
     }
 
     // Fallback: no token provided — return guest session
     return GUEST_SESSION;
   } catch (err) {
-    console.error("[auth] getSession error:", err);
+    console.error('[auth] getSession error:', err);
     return null;
   }
 }
