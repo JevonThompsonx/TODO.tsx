@@ -1,9 +1,29 @@
 'use client';
 // src/app/todos/page.tsx
 import { useState, useEffect, useCallback } from 'react';
-import TodoForm from '@/components/TodoForm';
-import TodoList from '@/components/TodoList';
+import dynamic from 'next/dynamic';
 import type { Todo, CreateTodoInput } from '@/types/todo';
+
+// Code-split the create form and list into their own lazily-loaded client
+// chunks so the initial route payload stays small (bundle optimization).
+const TodoForm = dynamic(() => import('@/components/TodoForm'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 animate-pulse" aria-hidden="true">
+      <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+      <div className="mt-4 h-10 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+    </div>
+  )
+});
+
+const TodoList = dynamic(() => import('@/components/TodoList'), {
+  ssr: false,
+  loading: () => (
+    <div className="text-center py-16 text-gray-400" aria-live="polite">
+      Loading list…
+    </div>
+  )
+});
 
 type Filter = 'all' | 'active' | 'completed';
 
