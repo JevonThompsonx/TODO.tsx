@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import OptimizedImage from '@/components/OptimizedImage';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,8 +28,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-900">
         <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="/todos" className="text-lg font-bold text-indigo-600 dark:text-indigo-400 tracking-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">
-              TODO<span className="text-gray-400">.tsx</span>
+            <a href="/todos" className="flex items-center gap-2 text-lg font-bold text-indigo-600 dark:text-indigo-400 tracking-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">
+              <OptimizedImage src="/logo.svg" alt="TODO.tsx logo" width={28} height={28} priority className="h-7 w-7" />
+              <span>
+                TODO<span className="text-gray-400">.tsx</span>
+              </span>
             </a>
             <nav aria-label="Main navigation">
               <a
