@@ -48,6 +48,8 @@ export default function TodosPage() {
   }, []);
 
   useEffect(() => {
+    // Data fetch on mount — intentionally triggers setState; not a derived-state effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTodos();
   }, [fetchTodos]);
 
