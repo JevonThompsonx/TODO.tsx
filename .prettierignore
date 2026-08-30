@@ -50,3 +50,5 @@ tests/plugin*
 docs/**
 assets/**
 *.md
+
+next-env.d.ts
