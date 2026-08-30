@@ -19,7 +19,7 @@ A production-ready Next.js todo app with a REST API, persistent storage, and opt
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js `16.2.3` (App Router) |
+| Framework | Next.js `16.3.3` (App Router) |
 | Language | TypeScript `5.x` |
 | Styles | Tailwind CSS `4.x` |
 | Database | Turso / libsql (local: `file:./dev.db`) |

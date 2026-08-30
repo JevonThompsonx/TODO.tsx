@@ -46,8 +46,8 @@ Modernization should be **extremely conservative** — this is a fork of a large
 - [ ] Fork sync strategy with upstream
 
 ## Performance
-- [ ] Bundle size (dynamic imports?)
-- [ ] Image optimization
+- [x] Bundle size (dynamic imports)
+- [x] Image optimization
 
 ## Developer QoL
 - [ ] CI pipeline (GitHub Actions?)

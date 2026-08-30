@@ -1,6 +1,6 @@
 'use client';
 // src/app/todos/page.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { Todo, CreateTodoInput } from '@/types/todo';
 
@@ -34,29 +34,22 @@ export default function TodosPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
 
-  // Load todos on mount. The request is fired directly from inside the effect
-  // and state is only updated from the resolved promise callback (never
-  // synchronously in the effect body), which satisfies the
-  // react-hooks/set-state-in-effect rule. A cancellation flag prevents state
-  // updates if the component unmounts before the request settles.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/todos');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
-        if (!cancelled) setTodos(data.todos);
-      } catch {
-        if (!cancelled) setError('Could not load todos. Is the server running?');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const fetchTodos = useCallback(async () => {
+    try {
+      const res = await fetch('/api/todos');
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
+      setTodos(data.todos);
+    } catch {
+      setError('Could not load todos. Is the server running?');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
 
   async function handleCreate(input: CreateTodoInput) {
     setCreating(true);
