@@ -1,166 +1,60 @@
-# Everything Claude Code (ECC) — Agent Instructions
+# AGENTS.md — TODO.tsx (todo app on a fork base)
 
-This is a **production-ready AI coding plugin** providing 47 specialized agents, 181 skills, 79 commands, and automated hook workflows for software development.
+**Active project:** full-stack Todo app — `src/` (Next.js `16.3.3` App Router, React 19,
+TypeScript 5, Tailwind 4, Turso/libsql with local `file:./dev.db` out of the box,
+optional Supabase auth with guest-session fallback).
+**Branch:** `modernization/2026-08-24` (PR to `main` only when gates green).
+**Last verified:** 2026-09-03 — gates green at `aa77624` (tsc/eslint/prettier/vitest/build).
 
-**Version:** 1.10.0
+Prior AGENTS.md (upstream-ECC boilerplate) backed up at
+`./AGENTS.md.pre-change-2026-09-03`. That file described only the fork base, never
+this app — do not restore it as the primary instructions.
 
-## Core Principles
+## Where things live
 
-1. **Agent-First** — Delegate to specialized agents for domain tasks
-2. **Test-Driven** — Write tests before implementation, 80%+ coverage required
-3. **Security-First** — Never compromise on security; validate all inputs
-4. **Immutability** — Always create new objects, never mutate existing ones
-5. **Plan Before Execute** — Plan complex features before writing code
+| Path | What | Touch? |
+| ---- | ---- | ------ |
+| `src/app`, `src/components`, `src/lib`, `src/types` | The todo app (active work) | Yes |
+| `tests/unit`, `tests/e2e`, `playwright.config.ts`, `vitest.config.ts` | App tests | Yes |
+| `README.md`, `MODERNIZATION_TODO.md` | App docs/status | Yes, keep in sync |
+| `.github/workflows/ci.yml` | Real CI: lint → typecheck → unit → build → e2e → Vercel | Yes (exists — the "no .github" claim was wrong) |
+| `agents/`, `skills/`, `commands/`, `hooks/`, `rules/`, `mcp-configs/`, `scripts/`, `docs/`, `ecc2/` … | Upstream `everything-claude-code` fork base | **No** — see below |
 
-## Available Agents
+## Upstream fork base (do NOT modernize unprompted)
 
-| Agent | Purpose | When to Use |
-|-------|---------|-------------|
-| planner | Implementation planning | Complex features, refactoring |
-| architect | System design and scalability | Architectural decisions |
-| tdd-guide | Test-driven development | New features, bug fixes |
-| code-reviewer | Code quality and maintainability | After writing/modifying code |
-| security-reviewer | Vulnerability detection | Before commits, sensitive code |
-| build-error-resolver | Fix build/type errors | When build fails |
-| e2e-runner | End-to-end Playwright testing | Critical user flows |
-| refactor-cleaner | Dead code cleanup | Code maintenance |
-| doc-updater | Documentation and codemaps | Updating docs |
-| cpp-reviewer | C/C++ code review | C and C++ projects |
-| cpp-build-resolver | C/C++ build errors | C and C++ build failures |
-| docs-lookup | Documentation lookup via Context7 | API/docs questions |
-| go-reviewer | Go code review | Go projects |
-| go-build-resolver | Go build errors | Go build failures |
-| kotlin-reviewer | Kotlin code review | Kotlin/Android/KMP projects |
-| kotlin-build-resolver | Kotlin/Gradle build errors | Kotlin build failures |
-| database-reviewer | PostgreSQL/Supabase specialist | Schema design, query optimization |
-| python-reviewer | Python code review | Python projects |
-| java-reviewer | Java and Spring Boot code review | Java/Spring Boot projects |
-| java-build-resolver | Java/Maven/Gradle build errors | Java build failures |
-| loop-operator | Autonomous loop execution | Run loops safely, monitor stalls, intervene |
-| harness-optimizer | Harness config tuning | Reliability, cost, throughput |
-| rust-reviewer | Rust code review | Rust projects |
-| rust-build-resolver | Rust build errors | Rust build failures |
-| pytorch-build-resolver | PyTorch runtime/CUDA/training errors | PyTorch build/training failures |
-| typescript-reviewer | TypeScript/JavaScript code review | TypeScript/JavaScript projects |
+This repo is a fork of `affaan-m/everything-claude-code` with a todo app built on top
+(see `MODERNIZATION_TODO.md` scope warning). Consequences:
 
-## Agent Orchestration
+- `docs/` (incl. `ja-JP/`, `ko-KR/`, `zh-CN/`, `business/`, `releases/`, ECC specs) is
+  **upstream content, kept intentionally** — not app docs, not dead weight. Never delete
+  or "prune" without explicit owner approval.
+- Same for `agents/`, `skills/`, `commands/`, `hooks/`, `rules/`, `mcp-configs/`,
+  `scripts/` (upstream plugin surface + Node utilities).
+- App work stays in `src/`, `tests/`, root configs, `README.md`, `MODERNIZATION_TODO.md`.
 
-Use agents proactively without user prompt:
-- Complex feature requests → **planner**
-- Code just written/modified → **code-reviewer**
-- Bug fix or new feature → **tdd-guide**
-- Architectural decision → **architect**
-- Security-sensitive code → **security-reviewer**
-- Autonomous loops / loop monitoring → **loop-operator**
-- Harness config reliability and cost → **harness-optimizer**
+## Commands (npm; Node 20)
 
-Use parallel execution for independent operations — launch multiple agents simultaneously.
-
-## Security Guidelines
-
-**Before ANY commit:**
-- No hardcoded secrets (API keys, passwords, tokens)
-- All user inputs validated
-- SQL injection prevention (parameterized queries)
-- XSS prevention (sanitized HTML)
-- CSRF protection enabled
-- Authentication/authorization verified
-- Rate limiting on all endpoints
-- Error messages don't leak sensitive data
-
-**Secret management:** NEVER hardcode secrets. Use environment variables or a secret manager. Validate required secrets at startup. Rotate any exposed secrets immediately.
-
-**If security issue found:** STOP → use security-reviewer agent → fix CRITICAL issues → rotate exposed secrets → review codebase for similar issues.
-
-## Coding Style
-
-**Immutability (CRITICAL):** Always create new objects, never mutate. Return new copies with changes applied.
-
-**File organization:** Many small files over few large ones. 200-400 lines typical, 800 max. Organize by feature/domain, not by type. High cohesion, low coupling.
-
-**Error handling:** Handle errors at every level. Provide user-friendly messages in UI code. Log detailed context server-side. Never silently swallow errors.
-
-**Input validation:** Validate all user input at system boundaries. Use schema-based validation. Fail fast with clear messages. Never trust external data.
-
-**Code quality checklist:**
-- Functions small (<50 lines), files focused (<800 lines)
-- No deep nesting (>4 levels)
-- Proper error handling, no hardcoded values
-- Readable, well-named identifiers
-
-## Testing Requirements
-
-**Minimum coverage: 80%**
-
-Test types (all required):
-1. **Unit tests** — Individual functions, utilities, components
-2. **Integration tests** — API endpoints, database operations
-3. **E2E tests** — Critical user flows
-
-**TDD workflow (mandatory):**
-1. Write test first (RED) — test should FAIL
-2. Write minimal implementation (GREEN) — test should PASS
-3. Refactor (IMPROVE) — verify coverage 80%+
-
-Troubleshoot failures: check test isolation → verify mocks → fix implementation (not tests, unless tests are wrong).
-
-## Development Workflow
-
-1. **Plan** — Use planner agent, identify dependencies and risks, break into phases
-2. **TDD** — Use tdd-guide agent, write tests first, implement, refactor
-3. **Review** — Use code-reviewer agent immediately, address CRITICAL/HIGH issues
-4. **Capture knowledge in the right place**
-   - Personal debugging notes, preferences, and temporary context → auto memory
-   - Team/project knowledge (architecture decisions, API changes, runbooks) → the project's existing docs structure
-   - If the current task already produces the relevant docs or code comments, do not duplicate the same information elsewhere
-   - If there is no obvious project doc location, ask before creating a new top-level file
-5. **Commit** — Conventional commits format, comprehensive PR summaries
-
-## Workflow Surface Policy
-
-- `skills/` is the canonical workflow surface.
-- New workflow contributions should land in `skills/` first.
-- `commands/` is a legacy slash-entry compatibility surface and should only be added or updated when a shim is still required for migration or cross-harness parity.
-
-## Git Workflow
-
-**Commit format:** `<type>: <description>` — Types: feat, fix, refactor, docs, test, chore, perf, ci
-
-**PR workflow:** Analyze full commit history → draft comprehensive summary → include test plan → push with `-u` flag.
-
-## Architecture Patterns
-
-**API response format:** Consistent envelope with success indicator, data payload, error message, and pagination metadata.
-
-**Repository pattern:** Encapsulate data access behind standard interface (findAll, findById, create, update, delete). Business logic depends on abstract interface, not storage mechanism.
-
-**Skeleton projects:** Search for battle-tested templates, evaluate with parallel agents (security, extensibility, relevance), clone best match, iterate within proven structure.
-
-## Performance
-
-**Context management:** Avoid last 20% of context window for large refactoring and multi-file features. Lower-sensitivity tasks (single edits, docs, simple fixes) tolerate higher utilization.
-
-**Build troubleshooting:** Use build-error-resolver agent → analyze errors → fix incrementally → verify after each fix.
-
-## Project Structure
-
-```
-agents/          — 47 specialized subagents
-skills/          — 181 workflow skills and domain knowledge
-commands/        — 79 slash commands
-hooks/           — Trigger-based automations
-rules/           — Always-follow guidelines (common + per-language)
-scripts/         — Cross-platform Node.js utilities
-mcp-configs/     — 14 MCP server configurations
-tests/           — Test suite
+```bash
+npm run dev            # dev server (local SQLite, zero credentials)
+npm run lint           # eslint (bare `eslint` = flat config scope)
+npm run typecheck      # tsc --noEmit
+npm run test:unit      # vitest run
+npm run test:e2e       # playwright (needs `npx playwright install chromium` once)
+npm run build          # next build (CI uses DATABASE_URL='file::memory:')
+npm run format:check   # prettier --check . (next-env.d.ts ignored)
 ```
 
-`commands/` remains in the repo for compatibility, but the long-term direction is skills-first.
+Gate order before push: `typecheck` → `lint` → `test:unit` → `format:check` → `build`
+(`test:e2e` when UI flows change). Never push red.
 
-## Success Metrics
+## Conventions (app code only)
 
-- All tests pass with 80%+ coverage
-- No security vulnerabilities
-- Code is readable and maintainable
-- Performance is acceptable
-- User requirements are met
+- Server data access behind `src/lib/todos.ts`; API routes under `src/app/api/todos/`
+  validate input at the boundary with typed errors (no unvalidated client input).
+- No hardcoded secrets; Supabase vars optional (guest fallback); local dev needs none.
+- `eslint-disable` inventory (2026-09-03, app code — leave in place, document if touched):
+  `src/lib/todos.ts:107`, `src/app/todos/page.tsx:52`,
+  `tests/unit/OptimizedImage.test.tsx:10`, `tests/scripts/skill-create-output.test.js:33`
+  (+ 2 in upstream `scripts/`, out of scope).
+- Conventional commits (`feat:`, `fix:`, `docs:`, …); scope diffs to the app unless the
+  task explicitly says otherwise.
