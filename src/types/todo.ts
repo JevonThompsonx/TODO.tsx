@@ -1,5 +1,5 @@
 // src/types/todo.ts
-export type Priority = "low" | "medium" | "high";
+export type Priority = 'low' | 'medium' | 'high';
 
 export interface Todo {
   id: string;

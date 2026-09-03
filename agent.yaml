@@ -1,4 +1,4 @@
-spec_version: "0.1.0"
+spec_version: '0.1.0'
 name: everything-claude-code
 version: 1.10.0
 description: "Initial gitagent export surface for ECC's shared skill catalog, governance, and identity. Native agents, commands, and hooks remain authoritative in the repository while manifest coverage expands."

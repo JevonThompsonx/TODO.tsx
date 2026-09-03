@@ -3,14 +3,14 @@
 // In production, set TURSO_DATABASE_URL=libsql://your-db.turso.io and
 // TURSO_AUTH_TOKEN=your-token in environment variables.
 
-import { createClient } from "@libsql/client";
+import { createClient } from '@libsql/client';
 
 let _client: ReturnType<typeof createClient> | null = null;
 
 export function getDb() {
   if (_client) return _client;
 
-  const url = process.env.TURSO_DATABASE_URL ?? "file:./dev.db";
+  const url = process.env.TURSO_DATABASE_URL ?? 'file:./dev.db';
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
   _client = createClient({ url, authToken });

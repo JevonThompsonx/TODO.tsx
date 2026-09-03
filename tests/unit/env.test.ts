@@ -1,7 +1,7 @@
 // tests/unit/env.test.ts
 // Unit tests for src/lib/env.ts
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 function withEnv(overrides: Record<string, string | undefined>, fn: () => void) {
   const original: Record<string, string | undefined> = {};
@@ -26,12 +26,12 @@ function withEnv(overrides: Record<string, string | undefined>, fn: () => void) 
   }
 }
 
-describe("validateEnv", () => {
-  let validateEnv: () => import("@/lib/env").EnvValidationResult;
+describe('validateEnv', () => {
+  let validateEnv: () => import('@/lib/env').EnvValidationResult;
 
   beforeEach(async () => {
     vi.resetModules();
-    const mod = await import("@/lib/env");
+    const mod = await import('@/lib/env');
     validateEnv = mod.validateEnv;
   });
 
@@ -39,16 +39,16 @@ describe("validateEnv", () => {
     vi.resetModules();
   });
 
-  describe("development mode (NODE_ENV=development)", () => {
-    it("is valid with no vars set (all use fallbacks)", () => {
+  describe('development mode (NODE_ENV=development)', () => {
+    it('is valid with no vars set (all use fallbacks)', () => {
       withEnv(
         {
-          NODE_ENV: "development",
+          NODE_ENV: 'development',
           TURSO_DATABASE_URL: undefined,
           TURSO_AUTH_TOKEN: undefined,
           NEXT_PUBLIC_SUPABASE_URL: undefined,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined
         },
         () => {
           const result = validateEnv();
@@ -59,72 +59,72 @@ describe("validateEnv", () => {
       );
     });
 
-    it("emits warning when TURSO_DATABASE_URL is missing", () => {
-      withEnv({ NODE_ENV: "development", TURSO_DATABASE_URL: undefined }, () => {
+    it('emits warning when TURSO_DATABASE_URL is missing', () => {
+      withEnv({ NODE_ENV: 'development', TURSO_DATABASE_URL: undefined }, () => {
         const result = validateEnv();
-        expect(result.warnings.some((w) => w.includes("TURSO_DATABASE_URL"))).toBe(true);
+        expect(result.warnings.some(w => w.includes('TURSO_DATABASE_URL'))).toBe(true);
       });
     });
 
-    it("emits warning when Supabase vars are missing", () => {
+    it('emits warning when Supabase vars are missing', () => {
       withEnv(
         {
-          NODE_ENV: "development",
+          NODE_ENV: 'development',
           NEXT_PUBLIC_SUPABASE_URL: undefined,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined
         },
         () => {
           const result = validateEnv();
-          expect(result.warnings.some((w) => w.toLowerCase().includes("supabase"))).toBe(true);
+          expect(result.warnings.some(w => w.toLowerCase().includes('supabase'))).toBe(true);
         }
       );
     });
   });
 
-  describe("production mode (NODE_ENV=production)", () => {
-    it("errors when TURSO_DATABASE_URL is missing in production", () => {
+  describe('production mode (NODE_ENV=production)', () => {
+    it('errors when TURSO_DATABASE_URL is missing in production', () => {
       withEnv(
         {
-          NODE_ENV: "production",
+          NODE_ENV: 'production',
           TURSO_DATABASE_URL: undefined,
           TURSO_AUTH_TOKEN: undefined,
           NEXT_PUBLIC_SUPABASE_URL: undefined,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
-          expect(result.errors.some((e) => e.includes("TURSO_DATABASE_URL"))).toBe(true);
+          expect(result.errors.some(e => e.includes('TURSO_DATABASE_URL'))).toBe(true);
         }
       );
     });
 
-    it("errors when remote Turso URL is set but auth token is missing", () => {
+    it('errors when remote Turso URL is set but auth token is missing', () => {
       withEnv(
         {
-          NODE_ENV: "production",
-          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
-          TURSO_AUTH_TOKEN: undefined,
+          NODE_ENV: 'production',
+          TURSO_DATABASE_URL: 'libsql://my-db.turso.io',
+          TURSO_AUTH_TOKEN: undefined
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
-          expect(result.errors.some((e) => e.includes("TURSO_AUTH_TOKEN"))).toBe(true);
+          expect(result.errors.some(e => e.includes('TURSO_AUTH_TOKEN'))).toBe(true);
         }
       );
     });
 
-    it("is valid when both TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are set", () => {
+    it('is valid when both TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are set', () => {
       withEnv(
         {
-          NODE_ENV: "production",
-          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
-          TURSO_AUTH_TOKEN: "token123",
+          NODE_ENV: 'production',
+          TURSO_DATABASE_URL: 'libsql://my-db.turso.io',
+          TURSO_AUTH_TOKEN: 'token123',
           NEXT_PUBLIC_SUPABASE_URL: undefined,
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined
         },
         () => {
           const result = validateEnv();
@@ -133,53 +133,47 @@ describe("validateEnv", () => {
       );
     });
 
-    it("warns when file DB is used in production", () => {
+    it('warns when file DB is used in production', () => {
       withEnv(
         {
-          NODE_ENV: "production",
-          TURSO_DATABASE_URL: "file:./dev.db",
-          TURSO_AUTH_TOKEN: undefined,
+          NODE_ENV: 'production',
+          TURSO_DATABASE_URL: 'file:./dev.db',
+          TURSO_AUTH_TOKEN: undefined
         },
         () => {
           const result = validateEnv();
-          expect(result.warnings.some((w) => w.includes("file path"))).toBe(true);
+          expect(result.warnings.some(w => w.includes('file path'))).toBe(true);
         }
       );
     });
 
-    it("errors when only Supabase URL is provided without key", () => {
+    it('errors when only Supabase URL is provided without key', () => {
       withEnv(
         {
-          NODE_ENV: "production",
-          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
-          TURSO_AUTH_TOKEN: "tok",
-          NEXT_PUBLIC_SUPABASE_URL: "https://xxx.supabase.co",
+          NODE_ENV: 'production',
+          TURSO_DATABASE_URL: 'libsql://my-db.turso.io',
+          TURSO_AUTH_TOKEN: 'tok',
+          NEXT_PUBLIC_SUPABASE_URL: 'https://xxx.supabase.co',
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: undefined,
+          SUPABASE_ANON_KEY: undefined
         },
         () => {
           const result = validateEnv();
           expect(result.valid).toBe(false);
-          expect(
-            result.errors.some(
-              (e) =>
-                e.includes("NEXT_PUBLIC_SUPABASE_URL") ||
-                e.includes("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
-            )
-          ).toBe(true);
+          expect(result.errors.some(e => e.includes('NEXT_PUBLIC_SUPABASE_URL') || e.includes('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'))).toBe(true);
         }
       );
     });
 
-    it("accepts SUPABASE_ANON_KEY as fallback for publishable key", () => {
+    it('accepts SUPABASE_ANON_KEY as fallback for publishable key', () => {
       withEnv(
         {
-          NODE_ENV: "production",
-          TURSO_DATABASE_URL: "libsql://my-db.turso.io",
-          TURSO_AUTH_TOKEN: "tok",
-          NEXT_PUBLIC_SUPABASE_URL: "https://xxx.supabase.co",
+          NODE_ENV: 'production',
+          TURSO_DATABASE_URL: 'libsql://my-db.turso.io',
+          TURSO_AUTH_TOKEN: 'tok',
+          NEXT_PUBLIC_SUPABASE_URL: 'https://xxx.supabase.co',
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: undefined,
-          SUPABASE_ANON_KEY: "anon-key-123",
+          SUPABASE_ANON_KEY: 'anon-key-123'
         },
         () => {
           const result = validateEnv();

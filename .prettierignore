@@ -1,0 +1,54 @@
+# Build / generated output
+.next/
+out/
+build/
+coverage/
+node_modules/
+
+# Lockfiles
+package-lock.json
+yarn.lock
+
+# Large upstream tooling dirs (fork of everything-claude-code) — not app code
+scripts/**
+.cursor/**
+.codebuddy/**
+.opencode/**
+.codex/**
+.gemini/**
+.kiro/**
+.trae/**
+.claude/**
+.claude-plugin/**
+.codex-plugin/**
+.cua/**
+.agents/**
+.agent/**
+skills/**
+examples/**
+agents/**
+commands/**
+hooks/**
+manifests/**
+mcp-configs/**
+plugins/**
+contexts/**
+research/**
+public/**
+schemas/**
+tests/ci/**
+tests/hooks/**
+tests/codex*
+tests/integration/**
+tests/lib/**
+tests/scripts/**
+tests/run-all.js
+tests/opencode*
+tests/plugin*
+
+# Docs / vendor
+docs/**
+assets/**
+*.md
+
+next-env.d.ts

@@ -2,18 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, "feature/**"]
+    branches: [main, develop, 'feature/**', 'modernization/**']
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'modernization/**']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: '20'
   # Turso local workaround — no real DB needed in CI
-  DATABASE_URL: "file::memory:"
+  DATABASE_URL: 'file::memory:'
 
 jobs:
   lint:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - run: npm run lint
 
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - run: npx tsc --noEmit
 
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - run: npm run test:unit
       - name: Upload coverage
@@ -67,11 +67,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - run: npm run build
         env:
-          DATABASE_URL: "file::memory:"
+          DATABASE_URL: 'file::memory:'
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -89,7 +89,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - name: Deploy to Vercel Preview
         run: npx vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --yes 2>&1 | tee /tmp/vercel-output.txt
@@ -113,7 +113,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - name: Deploy to Vercel Production
         run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
@@ -125,22 +125,22 @@ jobs:
   e2e:
     name: E2E Smoke Tests
     runs-on: ubuntu-latest
-    needs: [deploy-preview]
-    if: github.event_name == 'pull_request'
+    needs: [build]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Get preview URL
-        id: preview
+      - name: Start dev server
         run: |
-          echo "url=http://localhost:3000" >> $GITHUB_OUTPUT
-      - name: Run E2E smoke tests (against preview or local)
+          npm run dev &
+          echo "Waiting for dev server on http://localhost:3000..."
+          npx --yes wait-on http://localhost:3000 --timeout 60000 || bash -c 'for i in {1..30}; do curl -sf http://localhost:3000 >/dev/null && break || sleep 2; done'
+      - name: Run E2E smoke tests
         run: npm run test:e2e
         env:
-          PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
-          DATABASE_URL: "file::memory:"
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          DATABASE_URL: 'file::memory:'
