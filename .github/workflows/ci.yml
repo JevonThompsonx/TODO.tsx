@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '26'
   # Turso local workaround — no real DB needed in CI
   DATABASE_URL: 'file::memory:'
 
