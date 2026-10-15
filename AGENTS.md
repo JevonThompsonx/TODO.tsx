@@ -1,9 +1,10 @@
 # AGENTS.md — TODO.tsx (todo app on a fork base)
 
-**Active project:** full-stack Todo app — `src/` (Next.js `16.3.3` App Router, React 19,
+**Active project:** full-stack Todo app — `src/` (Next.js `16.3.4` App Router, React 19,
 TypeScript 5, Tailwind 4, Turso/libsql with local `file:./dev.db` out of the box,
 optional Supabase auth with guest-session fallback).
-**Branch:** `modernization/2026-08-24` (PR to `main` only when gates green).
+**Branch:** `fix/ci-node26-2026-09-03` — the `modernization/2026-08-24` branch was merged
+to `main` via PR #30 (merge `2d9e7ed`); open PRs to `main` only when gates green.
 **Last verified:** 2026-09-03 — gates green at `aa77624` (tsc/eslint/prettier/vitest/build).
 
 Prior AGENTS.md (upstream-ECC boilerplate) backed up at
@@ -16,7 +17,7 @@ this app — do not restore it as the primary instructions.
 | ---- | ---- | ------ |
 | `src/app`, `src/components`, `src/lib`, `src/types` | The todo app (active work) | Yes |
 | `tests/unit`, `tests/e2e`, `playwright.config.ts`, `vitest.config.ts` | App tests | Yes |
-| `README.md`, `MODERNIZATION_TODO.md` | App docs/status | Yes, keep in sync |
+| `README.md`, `MODERNIZATION_TODO.md`, `docs/INDEX.md` | App docs/status + repo doc map | Yes, keep in sync |
 | `.github/workflows/ci.yml` | Real CI: lint → typecheck → unit → build → e2e → Vercel | Yes (exists — the "no .github" claim was wrong) |
 | `agents/`, `skills/`, `commands/`, `hooks/`, `rules/`, `mcp-configs/`, `scripts/`, `docs/`, `ecc2/` … | Upstream `everything-claude-code` fork base | **No** — see below |
 
@@ -32,7 +33,25 @@ This repo is a fork of `affaan-m/everything-claude-code` with a todo app built o
   `scripts/` (upstream plugin surface + Node utilities).
 - App work stays in `src/`, `tests/`, root configs, `README.md`, `MODERNIZATION_TODO.md`.
 
-## Commands (npm; Node 20)
+## Upstream catalog (counts verified 2026-10-15)
+
+The fork base provides 47 specialized agents, 181 skills, 79 commands:
+
+```
+agents/            — 47 specialized subagents
+commands/          — 79 slash commands (59 with plugin description: frontmatter)
+skills/            — 181 workflow skills and domain knowledge
+rules/             — 89 rule docs (common/ + 15 language dirs)
+mcp-configs/       — 27 MCP server templates in mcp-servers.json
+contexts/          — 3 mode files (dev, research, review)
+```
+
+Repo-wide documentation map (every category with verified counts): `docs/INDEX.md`.
+
+## Commands (npm; Node 20 locally)
+
+`.tool-versions` pins `nodejs 20.19.0`; CI runs Node `26` since `15bdeb2`
+(`NODE_VERSION: '26'` in `.github/workflows/ci.yml`).
 
 ```bash
 npm run dev            # dev server (local SQLite, zero credentials)
