@@ -1,6 +1,6 @@
 # Commands Quick Reference
 
-> 59 slash commands installed globally. Type `/` in any Claude Code session to invoke.
+> 79 slash commands in `commands/` (59 carry plugin `description:` frontmatter). Type `/` in any Claude Code session to invoke.
 
 ---
 

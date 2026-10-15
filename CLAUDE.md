@@ -4,15 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Claude Code plugin** - a collection of production-ready agents, skills, hooks, commands, rules, and MCP configurations. The project provides battle-tested workflows for software development using Claude Code.
+This repository has **two layers**:
+
+1. **The active project** — a full-stack Todo app in `src/` (Next.js 16 App Router, React 19,
+   TypeScript, Tailwind 4, Turso/libsql, optional Supabase auth with guest fallback).
+2. **The upstream fork base** — a fork of `affaan-m/everything-claude-code` (the "ECC"
+   Claude Code plugin): agents, skills, hooks, commands, rules, and MCP configurations.
+
+**Primary instructions live in [`AGENTS.md`](AGENTS.md)** (app-first conventions, gates,
+constraints). Repo-wide documentation map: [`docs/INDEX.md`](docs/INDEX.md).
+App work stays in `src/`, `tests/`, and root configs — do not modernize the upstream
+plugin surface (`agents/`, `skills/`, `commands/`, `hooks/`, `rules/`, `scripts/`,
+`mcp-configs/`, `docs/`) without owner approval.
 
 ## Running Tests
 
 ```bash
-# Run all tests
-node tests/run-all.js
+# Todo app (npm scripts — see package.json)
+npm run test:unit      # vitest run
+npm run test:e2e       # playwright (needs `npx playwright install chromium` once)
+npm run lint           # eslint
+npm run typecheck      # tsc --noEmit
 
-# Run individual test files
+# Upstream plugin test suite (Node test runner)
+node tests/run-all.js
 node tests/lib/utils.test.js
 node tests/lib/package-manager.test.js
 node tests/hooks/hooks.test.js
@@ -20,7 +35,15 @@ node tests/hooks/hooks.test.js
 
 ## Architecture
 
-The project is organized into several core components:
+The todo app (`src/`) is organized as:
+
+- `src/app` — Next.js App Router pages and `src/app/api/todos/` REST routes
+- `src/components` — Todo UI components
+- `src/lib` — `db.ts` (Turso client), `todos.ts` (CRUD), `auth.ts` (Supabase + guest fallback), `validate.ts`, `env.ts`
+- `src/types` — shared Todo types
+- `tests/` — Vitest unit tests + Playwright E2E tests
+
+The upstream plugin base is organized into several core components:
 
 - **agents/** - Specialized subagents for delegation (planner, code-reviewer, tdd-guide, etc.)
 - **skills/** - Workflow definitions and domain knowledge (coding standards, patterns, testing)
@@ -66,7 +89,10 @@ Use the following skills when working on related files:
 
 | File(s) | Skill |
 |---------|-------|
-| `README.md` | `/readme` |
-| `.github/workflows/*.yml` | `/ci-workflow` |
+| `src/components/**`, `src/app/**` | `frontend-patterns` |
+| `src/lib/**`, `src/app/api/**` | `backend-patterns` |
+| `src/lib/auth.ts`, `src/lib/env.ts` | `security-review` |
+| `tests/**` | `tdd-workflow`, `e2e-testing` |
+| `*.md` (project docs) | `documentation-lookup` |
 
 When spawning subagents, always pass conventions from the respective skill into the agent's prompt.
