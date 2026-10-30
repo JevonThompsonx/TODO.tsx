@@ -1,5 +1,14 @@
 # AGENTS.md — TODO.tsx (todo app on a fork base)
 
+> **Cloudflare hosting (2026-10-30).** Runs on Worker `todo-tsx` —
+> https://todo-tsx.servicesorsubscriptions-natural894.workers.dev. Vercel is
+> suspended (HTTP 402) and is not a fallback. Deploy with `npm run deploy:cf`.
+> Detail: [`CLOUDFLARE.md`](./CLOUDFLARE.md).
+>
+> **Pending:** Supabase is not configured, so auth runs as a guest session. Set
+> `NEXT_PUBLIC_SUPABASE_URL` + anon key to enable accounts.
+
+
 **Active project:** full-stack Todo app — `src/` (Next.js `16.3.4` App Router, React 19,
 TypeScript 5, Tailwind 4, Turso/libsql with local `file:./dev.db` out of the box,
 optional Supabase auth with guest-session fallback).
