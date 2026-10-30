@@ -3,6 +3,24 @@
 // Call assertEnv() once at server startup to catch missing required vars early.
 // In local dev (NODE_ENV=development) missing Turso/Supabase vars are tolerated.
 
+/**
+ * Cloudflare Workers: `process.env` is a frozen proxy carrying plain vars only —
+ * Worker secrets never appear there. `worker-entry.ts` publishes the full
+ * binding set on `globalThis.__RUNTIME_ENV__` before the app loads; this is the
+ * single source every module should read configuration from.
+ */
+const runtimeBridge = (
+  globalThis as unknown as { __RUNTIME_ENV__?: Record<string, string> }
+).__RUNTIME_ENV__;
+
+export const envSource: NodeJS.ProcessEnv = runtimeBridge
+  ? { ...process.env, ...runtimeBridge }
+  : process.env;
+
+export function getEnvSource(): NodeJS.ProcessEnv {
+  return envSource;
+}
+
 export interface EnvValidationResult {
   valid: boolean;
   warnings: string[];
@@ -13,10 +31,10 @@ export interface EnvValidationResult {
 export function validateEnv(): EnvValidationResult {
   const warnings: string[] = [];
   const errors: string[] = [];
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = envSource.NODE_ENV === 'production';
 
   // ── Database — Turso ─────────────────────────────────────
-  const dbUrl = process.env.TURSO_DATABASE_URL;
+  const dbUrl = envSource.TURSO_DATABASE_URL;
   if (!dbUrl) {
     if (isProduction) {
       errors.push('TURSO_DATABASE_URL is required in production');
@@ -28,15 +46,15 @@ export function validateEnv(): EnvValidationResult {
   }
 
   if (isProduction && dbUrl && !dbUrl.startsWith('file:')) {
-    if (!process.env.TURSO_AUTH_TOKEN) {
+    if (!envSource.TURSO_AUTH_TOKEN) {
       errors.push('TURSO_AUTH_TOKEN is required when TURSO_DATABASE_URL is a remote Turso URL');
     }
   }
 
   // ── Supabase ──────────────────────────────────────────────
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseUrl = envSource.NEXT_PUBLIC_SUPABASE_URL;
   // Support both naming conventions Vercel uses
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
+  const supabaseAnonKey = envSource.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? envSource.SUPABASE_ANON_KEY;
 
   if (isProduction) {
     if (!supabaseUrl) {

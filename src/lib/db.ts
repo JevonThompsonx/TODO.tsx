@@ -5,13 +5,16 @@
 
 import { createClient } from '@libsql/client';
 
+import { getEnvSource } from '@/lib/env';
+
 let _client: ReturnType<typeof createClient> | null = null;
 
 export function getDb() {
   if (_client) return _client;
 
-  const url = process.env.TURSO_DATABASE_URL ?? 'file:./dev.db';
-  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const source = getEnvSource();
+  const url = source.TURSO_DATABASE_URL ?? 'file:./dev.db';
+  const authToken = source.TURSO_AUTH_TOKEN;
 
   _client = createClient({ url, authToken });
   return _client;

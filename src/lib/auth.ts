@@ -4,6 +4,7 @@
 // (local dev / CI without credentials).
 
 import { createClient } from '@supabase/supabase-js';
+import { getEnvSource } from '@/lib/env';
 
 export interface User {
   id: string;
@@ -29,12 +30,17 @@ const GUEST_SESSION: Session = {
 
 /** Resolve the Supabase anon key — Vercel uses different naming conventions. */
 function getAnonKey(): string | undefined {
-  return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const source = getEnvSource();
+  return (
+    source.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    source.SUPABASE_ANON_KEY ??
+    source.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 }
 
 /** Create a Supabase client for server-side use. Returns null when not configured. */
 export function createSupabaseServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url = getEnvSource().NEXT_PUBLIC_SUPABASE_URL;
   const key = getAnonKey();
   if (!url || !key) return null;
   return createClient(url, key, {
@@ -48,8 +54,8 @@ export function createSupabaseServerClient() {
 
 /** Create a Supabase admin client (service role). Server-side only. */
 export function createSupabaseAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = getEnvSource().NEXT_PUBLIC_SUPABASE_URL;
+  const key = getEnvSource().SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key, {
     auth: {
@@ -101,5 +107,5 @@ export async function getCurrentUser(accessToken?: string): Promise<User | null>
 
 /** Check if Supabase is configured (non-stub mode). */
 export function isSupabaseConfigured(): boolean {
-  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && getAnonKey());
+  return !!(getEnvSource().NEXT_PUBLIC_SUPABASE_URL && getAnonKey());
 }

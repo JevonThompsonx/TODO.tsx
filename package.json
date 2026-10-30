@@ -16,7 +16,12 @@
     "test:e2e:ui": "playwright test --ui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev:vinext": "vite dev --port 3001",
+    "build:vinext": "vite build",
+    "start:vinext": "vite preview",
+    "deploy:vinext": "vinext-cloudflare deploy",
+    "deploy:cf": "node tools/deploy-cloudflare.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs,json,md,yml,yaml}": [
@@ -31,9 +36,12 @@
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.114.0",
     "next": "^16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "uuid": "^13.0.0"
+    "react": "latest",
+    "react-dom": "latest",
+    "uuid": "^13.0.0",
+    "vinext": "latest",
+    "react-server-dom-webpack": "latest",
+    "@vinext/cloudflare": "latest"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
@@ -54,6 +62,11 @@
     "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.4"
-  }
+    "vitest": "^4.1.4",
+    "vite": "8.3.0",
+    "@vitejs/plugin-rsc": "latest",
+    "@cloudflare/vite-plugin": "beta",
+    "cf": "latest"
+  },
+  "type": "module"
 }
