@@ -541,7 +541,7 @@ dependencies = [
  "chrono",
  "clap",
  "cron",
- "crossterm 0.28.1",
+ "crossterm 0.29.0",
  "dirs",
  "git2",
  "libc",
