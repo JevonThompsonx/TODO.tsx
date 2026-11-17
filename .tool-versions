@@ -2,5 +2,5 @@
 # Install asdf, then run: asdf install
 # These versions are also compatible with mise (https://mise.jdx.dev).
 
-nodejs 20.19.0
+nodejs 20.20.2
 python 3.12.8
