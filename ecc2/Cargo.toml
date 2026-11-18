@@ -16,7 +16,7 @@ crossterm = "0.29"
 tokio = { version = "1", features = ["full"] }
 
 # State store
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.43", features = ["bundled"] }
 
 # Git integration
 git2 = "0.21"
